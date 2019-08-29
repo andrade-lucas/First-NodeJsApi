@@ -4,19 +4,35 @@ const mongoose = require('mongoose');
 const Product = mongoose.model('Product');
 
 exports.get = (req, res, next) => {
-    res.status(200).send({
-        id: '1',
-        Description: 'Rice',
-        Price: '5,99'
+    Product.find({ active: true }, 'title price slug').then(data => {
+        res.status(200).send(data)
+    }).catch(e => {
+        res.status(400).send(e)
     });
 };
+
+exports.getBySlug = (req, res, next) => {
+    Product.findOne({ active: true, slug: req.params.slug }, 'title description price slug tags').then(data => {
+        res.status(200).send(data)
+    }).catch(e => {
+        res.status(400).send(e)
+    });
+}
+
+exports.getById = (req, res, next) => {
+    Product.findOne(req.params.id).then(data => {
+        res.status(200).send(data)
+    }).catch(e => {
+        res.status(400).send(e)
+    });
+}
 
 exports.post = (req, res, next) => {
     var product = new Product(req.body);
     product.save().then(x => {
-        res.status(201).send({status: true, message: 'Produto cadastrado com sucesso'});
-    }).catch(e => { 
-        res.status(400).send({status: false, message: 'Erro ao cadastrar produto', data: e});
+        res.status(201).send({ status: true, message: 'Produto cadastrado com sucesso' });
+    }).catch(e => {
+        res.status(400).send({ status: false, message: 'Erro ao cadastrar produto', data: e });
     });
 };
 
