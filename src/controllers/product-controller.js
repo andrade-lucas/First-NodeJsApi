@@ -1,5 +1,8 @@
 'use strict';
 
+const mongoose = require('mongoose');
+const Product = mongoose.model('Product');
+
 exports.get = (req, res, next) => {
     res.status(200).send({
         id: '1',
@@ -9,7 +12,12 @@ exports.get = (req, res, next) => {
 };
 
 exports.post = (req, res, next) => {
-    res.status(201).send(req.body);
+    var product = new Product(req.body);
+    product.save().then(x => {
+        res.status(201).send({status: true, message: 'Produto cadastrado com sucesso'});
+    }).catch(e => { 
+        res.status(400).send({status: false, message: 'Erro ao cadastrar produto', data: e});
+    });
 };
 
 exports.put = (req, res, next) => {
