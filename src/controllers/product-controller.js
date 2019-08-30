@@ -20,7 +20,15 @@ exports.getBySlug = (req, res, next) => {
 }
 
 exports.getById = (req, res, next) => {
-    Product.findOne(req.params.id).then(data => {
+    Product.findById(req.params.id).then(data => {
+        res.status(200).send(data)
+    }).catch(e => {
+        res.status(400).send(e)
+    });
+}
+
+exports.getBytag = (req, res, next) => {
+    Product.find({ active: true, tags: req.params.tag }, 'title description price slug tags').then(data => {
         res.status(200).send(data)
     }).catch(e => {
         res.status(400).send(e)
@@ -37,11 +45,37 @@ exports.post = (req, res, next) => {
 };
 
 exports.put = (req, res, next) => {
-    const id = req.params.id;
-    res.status(200).send({ id: id, item: req.body });
+    Product.findByIdAndUpdate(req.params.id, {
+        $set: {
+            title: req.body.title,
+            description: req.body.description,
+            price: req.body.price,
+            slug: req.body.slug
+        }
+    }).then(x => {
+        res.status(200).send({
+            status: true,
+            message: 'Produto atualizado com sucesso!'
+        }).catch(e => {
+            res.status(400).send({
+                status: false,
+                message: 'Falha ao atualizar produto',
+                data: e
+            });
+        });
+    });
 };
 
 exports.delete = (req, res, next) => {
-    const id = req.params.id;
-    res.status(200).send({ id: id, item: req.body });
+    Product.findByIdAndDelete(req.params.id).then(x => {
+        res.status(200).send({
+            status: true,
+            message: 'Produto deletado com sucesso'
+        })
+    }).catch(e => {
+        res.status(400).send({
+            status: false,
+            message: 'Erro ao deletar registro'
+        });
+    });
 };
